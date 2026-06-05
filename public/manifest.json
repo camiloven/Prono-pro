@@ -1,0 +1,22 @@
+
+  "name": "Prono Pro",
+  "short_name": "PronoPro",
+  "description": "App de predicciones deportivas",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0a0f",
+  "theme_color": "#0a0a0f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://via.placeholder.com/192x192/00FF87/000000?text=PP",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://via.placeholder.com/512x512/00FF87/000000?text=PP",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
