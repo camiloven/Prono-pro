@@ -21,7 +21,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowIntro(false), 5000);
+    const timer = setTimeout(() => setShowIntro(false), 6000);
     return () => clearTimeout(timer);
   }, []);
 
@@ -93,29 +93,24 @@ export default function App() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover opacity-75"
         >
-          <source src="/grok_video_2026-06-14-15-21-27.mp4" type="video/mp4" />
-          Tu navegador no soporta video.
+          <source src="/grok_video.mp4" type="video/mp4" />
+          Tu navegador no soporta el video.
         </video>
 
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/70 to-black z-10"></div>
 
         <div className="relative z-20 text-center px-6">
-          <div className="mb-8">
-            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md px-8 py-4 rounded-3xl">
-              <span className="text-6xl">⚽</span>
-              <div>
-                <h1 className="text-6xl font-bold tracking-tighter text-white">PRONO PRO</h1>
-                <p className="text-emerald-400 text-xl">by camiloven</p>
-              </div>
-            </div>
+          <div className="mb-12">
+            <div className="text-7xl mb-6">⚽</div>
+            <h1 className="text-6xl font-bold tracking-tighter text-white">PRONO PRO</h1>
+            <p className="text-emerald-400 text-3xl mt-3">by camiloven</p>
           </div>
-          <p className="text-white/90 text-2xl mt-4">Pronósticos Premium</p>
         </div>
 
-        <div className="absolute bottom-12 z-20">
+        <div className="absolute bottom-16 z-20">
           <button 
             onClick={() => setShowIntro(false)}
-            className="px-12 py-5 bg-white text-black font-bold rounded-2xl text-xl active:scale-95 transition-all"
+            className="px-14 py-6 bg-white text-black font-bold rounded-3xl text-xl active:scale-95 transition-all"
           >
             ENTRAR AL PANEL
           </button>
@@ -124,7 +119,6 @@ export default function App() {
     );
   }
 
-  // ... (el resto del panel se mantiene igual)
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white font-sans">
       <header className="sticky top-0 z-50 bg-[#12141b] border-b border-[#252836] px-4 py-5">
