@@ -5,6 +5,7 @@ const ADMIN_KEY = "JACOBO_ADMIN_2026";
 const CLIENT_KEY = "PRONO_MASTER_2026";
 
 export default function App() {
+  const [showIntro, setShowIntro] = useState(true);
   const [inputKey, setInputKey] = useState('');
   const [role, setRole] = useState(null);
   const [error, setError] = useState('');
@@ -17,6 +18,11 @@ export default function App() {
   useEffect(() => {
     const savedRole = localStorage.getItem('prono_user_role');
     if (savedRole) setRole(savedRole);
+  }, []);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowIntro(false), 5000);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleLogin = (e) => {
@@ -77,15 +83,57 @@ export default function App() {
 
   const displayedPredictions = role === 'admin' ? predictions : predictions.filter(p => p.visible);
 
+  if (showIntro) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center relative overflow-hidden">
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover opacity-75"
+        >
+          <source src="/grok_video_2026-06-14-15-21-27.mp4" type="video/mp4" />
+          Tu navegador no soporta video.
+        </video>
+
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/80 to-black z-10"></div>
+
+        <div className="relative z-20 text-center px-6">
+          <div className="mb-8">
+            <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md px-8 py-4 rounded-3xl">
+              <span className="text-6xl">⚽</span>
+              <div>
+                <h1 className="text-6xl font-bold tracking-tighter text-white">PRONO PRO</h1>
+                <p className="text-emerald-400 text-xl">by camiloven</p>
+              </div>
+            </div>
+          </div>
+          <p className="text-white/90 text-2xl mt-4">Pronósticos Premium</p>
+        </div>
+
+        <div className="absolute bottom-12 z-20">
+          <button 
+            onClick={() => setShowIntro(false)}
+            className="px-12 py-5 bg-white text-black font-bold rounded-2xl text-xl active:scale-95 transition-all"
+          >
+            ENTRAR AL PANEL
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ... (el resto del panel se mantiene igual)
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white font-sans">
       <header className="sticky top-0 z-50 bg-[#12141b] border-b border-[#252836] px-4 py-5">
         <div className="max-w-3xl mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg">📊</div>
+            <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-2xl flex items-center justify-center text-2xl">📊</div>
             <div>
               <h1 className="text-3xl font-bold tracking-tighter">PRONO PRO</h1>
-              <p className="text-emerald-400 text-sm -mt-1">PRONÓSTICOS PREMIUM</p>
+              <p className="text-emerald-400 text-sm -mt-1">by camiloven</p>
             </div>
           </div>
           {role && (
@@ -98,24 +146,13 @@ export default function App() {
         <div className="flex items-center justify-center min-h-[85vh] px-4">
           <div className="w-full max-w-md bg-[#16181f] rounded-3xl p-10 border border-[#252836]">
             <div className="text-center mb-12">
-              <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-3xl flex items-center justify-center text-6xl mb-6 shadow-xl">⚽</div>
+              <div className="mx-auto w-24 h-24 bg-gradient-to-br from-emerald-500 to-cyan-500 rounded-3xl flex items-center justify-center text-6xl mb-6">⚽</div>
               <h2 className="text-4xl font-bold mb-3">Prono Pro</h2>
-              <p className="text-gray-400">Acceso exclusivo</p>
+              <p className="text-emerald-400">by camiloven</p>
             </div>
             <form onSubmit={handleLogin}>
-              <input 
-                type="password" 
-                placeholder="Código de acceso" 
-                value={inputKey} 
-                onChange={(e) => setInputKey(e.target.value)} 
-                className="w-full bg-[#1e222b] border border-[#353945] rounded-2xl px-6 py-5 text-center text-lg focus:outline-none focus:border-emerald-500 mb-6" 
-              />
-              <button 
-                type="submit" 
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all active:scale-95"
-              >
-                INGRESAR AL PANEL
-              </button>
+              <input type="password" placeholder="Código de acceso" value={inputKey} onChange={(e) => setInputKey(e.target.value)} className="w-full bg-[#1e222b] border border-[#353945] rounded-2xl px-6 py-5 text-center text-lg focus:outline-none focus:border-emerald-500 mb-6" />
+              <button type="submit" className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-bold py-5 rounded-2xl text-lg transition-all active:scale-95">INGRESAR AL PANEL</button>
             </form>
             {error && <p className="text-red-400 text-center mt-4">{error}</p>}
           </div>
