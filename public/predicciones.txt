@@ -1,0 +1,28 @@
+1. **Resumen de Datos Extraídos**:
+   - Captura 1: Partidos de Nueva Zelanda - National League, El RP China - FA Cup, Australia - Victoria NPL Youth.
+   - Captura 2: Partidos de Australia - Victoria Premier League 2, Australia - New South Wales NPL 3, El RP China - League Two.
+   - Captura 3: Partidos de El RP China - FA Cup, El RP China - League Two, Kazajstan - First Division.
+   - Captura 4: Partidos de Argentina - Reserve League.
+   - Captura 5: Partidos de Brasil - Baiano 2, Brasil - Cearense U20, Republica de Irlanda - Premier Division.
+   - Captura 6: Partidos de Mundo - World Cup, Islandia - Inkasso-Deildin, Estados Unidos - USL League Two, Ecuador - Superliga Femenina.
+   - Captura 7: Partidos de la Copa del Mundo (México vs. Corea del Sur, Australia vs. Escocia, Marruecos vs. Brasil, Haití vs. Turquía, Paraguay vs. un equipo no especificado), y partidos de la liga irlandesa (St. Patrick's Dublin vs. Sligo Rovers, Shelbourne FC vs. Drogheda Utd, Waterford United vs. Shamrock Rovers, Galway United vs. Derry City).
+
+2. **Análisis Consolidado de Forma y Rendimiento**:
+   - Los partidos de la Copa del Mundo muestran una variedad de cuotas, lo que sugiere una competencia equilibrada.
+   - En la liga irlandesa, los equipos como Shamrock Rovers y Derry City parecen tener una buena forma, con cuotas favorables para ganar.
+   - En las ligas de Australia y Nueva Zelanda, no hay un equipo que destaque claramente en términos de forma y rendimiento.
+   - En la liga china, los equipos como Guangzhou E-Power FC y Beijing Guoan tienen cuotas favorables para ganar en la FA Cup.
+
+3. **Probabilidades Calculadas por Partido**:
+   - **México vs. Corea del Sur**: Gana México (1.60), Empate (3.33), Gana Corea del Sur (5.00). Over 2.5 (2.10), BTTS (1.80).
+   - **Australia vs. Escocia**: Gana Australia (1.60), Empate (3.60), Gana Escocia (3.70). Over 2.5 (2.20), BTTS (1.90).
+   - **Marruecos vs. Brasil**: Gana Brasil (1.25), Empate (4.50), Gana Marruecos (9.00). Over 2.5 (1.80), BTTS (1.60).
+   - **Haití vs. Turquía**: Gana Turquía (1.20), Empate (5.00), Gana Haití (10.00). Over 2.5 (2.00), BTTS (1.80).
+   - **Shamrock Rovers vs. Waterford United**: Gana Shamrock Rovers (1.25), Empate (4.50), Gana Waterford United (9.00). Over 2.5 (1.80), BTTS (1.60).
+   - **Derry City vs. Galway United**: Gana Derry City (1.60), Empate (3.50), Gana Galway United (4.50). Over 2.5 (2.10), BTTS (1.80).
+
+4. **Conclusión y Recomendaciones Premium de Apuesta**:
+   - Se recomienda apostar por la victoria de México en su partido contra Corea del Sur, considerando su forma y las cuotas favorables.
+   - En la liga irlandesa, apostar por la victoria de Shamrock Rovers contra Waterford United podría ser una buena opción, dada su forma y las cuotas favorables.
+   - En los partidos de la Copa del Mundo, apostar por el over 2.5 en los partidos de Marruecos vs. Brasil y Haití vs. Turquía podría ser una buena opción, considerando la tendencia de estos equipos a anotar goles.
+   - Es importante tener en cuenta que las cuotas y las probabilidades pueden cambiar, por lo que es fundamental estar al tanto de las últimas noticias y actualizaciones antes de realizar cualquier apuesta.
