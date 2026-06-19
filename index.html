@@ -35,6 +35,7 @@
     <div id="sportTabs" class="flex flex-wrap gap-2 px-6 pb-4"></div>
     <div id="content" class="px-6"></div>
 
+    <!-- SECCIÓN DE LA INTELIGENCIA ARTIFICIAL -->
     <div class="px-6 mt-8">
         <div style="background:#171717; border:1px solid #eab30833; border-radius:20px; padding:24px;">
             <h3 class="text-lg font-black text-yellow-400 border-b border-zinc-800 pb-3 flex items-center gap-2">
@@ -59,15 +60,15 @@ function renderTabs() {
     Object.keys(allData).forEach(sport => {
         const btn = document.createElement('button');
         btn.textContent = sport.toUpperCase();
-        btn.className = `tab ${Object.keys(allData)[0] === sport ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-white'}`;
-        btn.onclick = () => mostrarDeporte(sport);
+        btn.className = 'tab ' + (Object.keys(allData)[0] === sport ? 'bg-yellow-400 text-black' : 'bg-zinc-800 text-white');
+        btn.onclick = function() { mostrarDeporte(sport); };
         container.appendChild(btn);
     });
 }
 
 function mostrarDeporte(sport) {
     const data = allData[sport] || [];
-    let html = `<h2 class="text-yellow-400 text-3xl font-bold mb-8 px-2 capitalize">${sport}</h2>`;
+    let html = '<h2 class="text-yellow-400 text-3xl font-bold mb-8 px-2 capitalize">' + sport + '</h2>';
 
     data.forEach(p => {
         const h = Math.round((p['1x2_h']||0)*100);
@@ -77,47 +78,45 @@ function mostrarDeporte(sport) {
         let ouHTML = '';
         const thresholds = [1.5, 2.5, 3.5];
         thresholds.forEach(th => {
-            if (p[`o_${th}`] !== undefined) {
-                ouHTML += `<div class="flex justify-between py-1 text-sm"><span>Over ${th}</span><span class="text-green-400 font-bold">${Math.round(p[`o_${th}`]*100)}%</span></div>`;
+            if (p['o_' + th] !== undefined) {
+                ouHTML += '<div class="flex justify-between py-1 text-sm"><span>Over ' + th + '</span><span class="text-green-400 font-bold">' + Math.round(p['o_' + th]*100) + '%</span></div>';
             }
-            if (p[`u_${th}`] !== undefined) {
-                ouHTML += `<div class="flex justify-between py-1 text-sm"><span>Under ${th}</span><span class="text-red-400 font-bold">${Math.round(p[`u_${th}`]*100)}%</span></div>`;
+            if (p['u_' + th] !== undefined) {
+                ouHTML += '<div class="flex justify-between py-1 text-sm"><span>Under ' + th + '</span><span class="text-red-400 font-bold">' + Math.round(p['u_' + th]*100) + '%</span></div>';
             }
         });
 
-        html += `
-        <div class="card">
-            <div class="text-amber-400">${p.date || ''}</div>
-            <div class="font-bold text-xl mt-2">${p.home} vs ${p.away}</div>
-            <div class="grid grid-cols-3 gap-6 mt-8 text-center">
-                <div><div class="text-4xl font-bold text-green-400">${h}%</div><div class="text-xs">LOCAL</div></div>
-                <div><div class="text-4xl font-bold text-yellow-400">${d}%</div><div class="text-xs">EMPATE</div></div>
-                <div><div class="text-4xl font-bold text-red-400">${a}%</div><div class="text-xs">VISITA</div></div>
-            </div>
-            ${ouHTML ? `<div class="mt-6 bg-zinc-900 rounded-2xl p-4 text-sm">${ouHTML}</div>` : ''}
-        </div>`;
+        html += '<div class="card">';
+        html += '  <div class="text-amber-400">' + (p.date || '') + '</div>';
+        html += '  <div class="font-bold text-xl mt-2">' + p.home + ' vs ' + p.away + '</div>';
+        html += '  <div class="grid grid-cols-3 gap-6 mt-8 text-center">';
+        html += '      <div><div class="text-4xl font-bold text-green-400">' + h + '%</div><div class="text-xs">LOCAL</div></div>';
+        html += '      <div><div class="text-4xl font-bold text-yellow-400">' + d + '%</div><div class="text-xs">EMPATE</div></div>';
+        html += '      <div><div class="text-4xl font-bold text-red-400">' + a + '%</div><div class="text-xs">VISITA</div></div>';
+        html += '  </div>';
+        if (ouHTML) {
+            html += '  <div class="mt-6 bg-zinc-900 rounded-2xl p-4 text-sm">' + ouHTML + '</div>';
+        }
+        html += '</div>';
     });
 
     document.getElementById('content').innerHTML = html || '<p class="text-center py-24 text-gray-500">Carga tu Excel</p>';
 }
 
-// Cargar Dinámicamente el análisis de la IA
 function cargarAnalisisIA() {
     const iaBox = document.getElementById('iaAnalysisContent');
-    fetch('/public/predicciones.json')
-        .then(res => {
-            if (!res.ok) throw new Error();
-            return res.json();
-        })
+    // Forzamos la lectura directa del JSON público evitando la caché del navegador de Vite
+    fetch('./public/predicciones.json?v=' + new Date().getTime())
+        .then(res => res.json())
         .then(data => {
             if (data && data.analisis) {
                 iaBox.textContent = data.analisis;
             } else {
-                iaBox.innerHTML = `<span class="text-zinc-500">⚠️ No se encontraron análisis disponibles para hoy.</span>`;
+                iaBox.innerHTML = '<span class="text-zinc-500">⚠️ No hay análisis para mostrar.</span>';
             }
         })
         .catch(() => {
-            iaBox.innerHTML = `<span class="text-zinc-500">⚠️ No se encontraron análisis disponibles para hoy.</span>`;
+            iaBox.innerHTML = '<span class="text-zinc-500">⚠️ Error al cargar las predicciones de la IA.</span>';
         });
 }
 
@@ -143,13 +142,11 @@ document.getElementById('fileInput').onchange = e => {
     reader.readAsBinaryString(file);
 };
 
-// Cargar datos guardados automáticamente
 if (Object.keys(allData).length > 0) {
     renderTabs();
     mostrarDeporte(Object.keys(allData)[0]);
 }
 
-// Inicializar carga de IA
 cargarAnalisisIA();
 </script>
 </body>
