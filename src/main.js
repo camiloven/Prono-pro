@@ -42,3 +42,4 @@ appDiv.innerHTML = `
     </div>
   </section>
 `;
+// Forzar recompilacion
