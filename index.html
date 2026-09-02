@@ -3,37 +3,905 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0b0f19">
     <title>Pronos Camiloven</title>
+    <link rel="icon" type="image/svg+xml" href="/assets/favicon-Bw1mkbdR.svg">
+    <link rel="apple-touch-icon" href="/assets/apple-touch-icon-CwQfOxKj.png">
+    <link rel="manifest" href="/assets/manifest-CmdlKp-N.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pronos">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter', 'system-ui', 'sans-serif'] } } } };
+    </script>
+    <style>
+        body {
+            background:
+                radial-gradient(1200px 600px at 80% -10%, rgba(16,185,129,.10), transparent 60%),
+                radial-gradient(900px 500px at -10% 20%, rgba(245,158,11,.06), transparent 60%),
+                #0b0f19;
+            color: #e2e8f0;
+            font-family: 'Inter', system-ui, sans-serif;
+            margin: 0;
+        }
+        .card {
+            background: rgba(255,255,255,.04);
+            border: 1px solid rgba(255,255,255,.09);
+            border-radius: 18px;
+            padding: 22px;
+            margin: 14px 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,.35);
+            backdrop-filter: blur(6px);
+            transition: border-color .2s, transform .15s;
+        }
+        .card:hover { border-color: rgba(16,185,129,.45); transform: translateY(-1px); }
+        .card.liga-card {
+            border-left: 4px solid var(--liga);
+            box-shadow: 0 10px 30px rgba(0,0,0,.35), 0 0 22px var(--liga-glow);
+        }
+        .card.liga-card:hover {
+            border-color: color-mix(in srgb, var(--liga) 70%, white);
+            box-shadow: 0 12px 32px rgba(0,0,0,.4), 0 0 28px var(--liga-glow);
+        }
+        .liga-grupo {
+            position: relative;
+            padding-left: 14px;
+            margin: 6px 0 22px;
+            animation: ligaIn .4s ease both;
+        }
+        .liga-grupo::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10px;
+            bottom: 10px;
+            width: 4px;
+            border-radius: 999px;
+            background: var(--liga);
+            box-shadow: 0 0 18px var(--liga-glow);
+        }
+        .liga-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 18px 0 8px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            background: color-mix(in srgb, var(--liga) 14%, transparent);
+            border: 1px solid color-mix(in srgb, var(--liga) 35%, transparent);
+            box-shadow: 0 0 24px var(--liga-glow);
+        }
+        .liga-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: var(--liga);
+            box-shadow: 0 0 10px var(--liga);
+            animation: ligaPulse 1.8s ease-in-out infinite;
+        }
+        .liga-badge {
+            background: color-mix(in srgb, var(--liga) 18%, transparent);
+            color: var(--liga);
+            border: 1px solid color-mix(in srgb, var(--liga) 40%, transparent);
+        }
+        .liga-count {
+            background: color-mix(in srgb, var(--liga) 18%, transparent);
+            color: var(--liga);
+            border: 1px solid color-mix(in srgb, var(--liga) 40%, transparent);
+        }
+        @keyframes ligaPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.35); opacity: .65; }
+        }
+        @keyframes ligaIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: none; }
+        }
+        .tab {
+            padding: 10px 22px;
+            border-radius: 9999px;
+            font-weight: 700;
+            white-space: nowrap;
+            margin: 4px;
+            transition: all .2s;
+            border: 1px solid transparent;
+        }
+        .tab:hover { border-color: rgba(16,185,129,.5); }
+        #dropzone { border: 2px dashed rgba(255,255,255,.18); border-radius: 18px; transition: all .2s; }
+        #dropzone.dragover { border-color: #10b981; background: rgba(16,185,129,.08); }
+        ::selection { background: rgba(16,185,129,.35); }
+    </style>
 </head>
-<body class="bg-[#0a0a0a] text-[#e5e5e5] pb-12">
-    <div class="bg-gradient-to-r from-amber-500 to-yellow-500 text-black p-8 text-center">
-        <h1 class="text-4xl font-black">PRONOS CAMILOVEN</h1>
-        <p class="text-sm tracking-widest">by camiloven</p>
+<body class="pb-12">
+
+    <header class="relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700"></div>
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-black/30"></div>
+        <div class="absolute -top-20 -right-20 w-72 h-72 bg-emerald-400/20 rounded-full blur-3xl"></div>
+        <div class="absolute -bottom-24 -left-16 w-72 h-72 bg-teal-400/20 rounded-full blur-3xl"></div>
+        <div class="relative p-8 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/25 text-amber-300 text-[11px] font-bold tracking-[.3em] uppercase mb-4">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-300 animate-pulse"></span>
+                High Probability Picks
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black tracking-tight text-white drop-shadow-lg">PRONOS CAMILOVEN</h1>
+            <p class="mt-2 text-emerald-100/80 text-sm font-medium">Análisis y pronósticos deportivos con datos de IA</p>
+        </div>
+    </header>
+
+    <div class="grid grid-cols-3 gap-3 p-6 max-w-3xl mx-auto">
+        <button onclick="window.open('https://www.betmines.com/es','_blank')" class="bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-4 rounded-2xl text-center text-sm font-semibold transition">Betmines</button>
+        <button onclick="window.open('https://www.forebet.com/es/predicciones','_blank')" class="bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-4 rounded-2xl text-center text-sm font-semibold transition">Forebet</button>
+        <button onclick="window.open('https://www.adamchoi.co.uk/','_blank')" class="bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-4 rounded-2xl text-center text-sm font-semibold transition">AdamChoi</button>
     </div>
 
-    <div class="grid grid-cols-3 gap-3 p-6 max-w-lg mx-auto">
-        <button onclick="window.open('https://www.betmines.com/es','_blank')" class="bg-zinc-900 p-4 rounded-3xl text-center text-sm font-semibold">Betmines</button>
-        <button onclick="window.open('https://www.forebet.com/es/predicciones','_blank')" class="bg-zinc-900 p-4 rounded-3xl text-center text-sm font-semibold">Forebet</button>
-        <button onclick="window.open('https://www.adamchoi.co.uk/','_blank')" class="bg-zinc-900 p-4 rounded-3xl text-center text-sm font-semibold">AdamChoi</button>
+    <div class="px-6 max-w-3xl mx-auto">
+        <button onclick="document.getElementById('fileInput').click()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-black py-6 rounded-2xl font-black text-lg shadow-lg shadow-emerald-900/40 hover:from-emerald-400 hover:to-teal-400 hover:-translate-y-0.5 active:translate-y-0 transition">
+            📁 CARGAR EXCEL O CSV
+        </button>
+        <div id="dropzone" class="mt-4 p-6 text-center text-sm text-gray-400 rounded-2xl bg-white/[.02]">
+            O arrastra tu archivo .xlsx / .csv aquí
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" class="hidden">
+        <div id="status" class="mt-3 text-center text-sm text-gray-400"></div>
     </div>
 
-    <div class="px-6 max-w-lg mx-auto mb-6">
-        <button class="w-full bg-yellow-500 text-black py-5 rounded-3xl font-bold text-lg shadow-lg shadow-yellow-500/10">
-            📁 CARGAR NUEVO EXCEL
+    <div class="px-6 max-w-3xl mx-auto mt-4 grid grid-cols-3 gap-3">
+        <button onclick="compartirCopiar()" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-3.5 rounded-xl text-sm font-semibold transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copiar
+        </button>
+        <button onclick="compartirWhatsApp()" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-3.5 rounded-xl text-sm font-semibold transition">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm5.3 14.1c-.2.6-1.2 1.2-1.7 1.2-.4.1-.9.1-1.5-.1a13 13 0 0 1-1.3-.5c-2.3-1-3.8-3.3-3.9-3.5-.1-.2-1-1.3-1-2.5s.6-1.8.9-2c.2-.3.5-.3.7-.3h.5c.2 0 .4-.1.6.4l.8 2c.1.2.1.4 0 .6l-.4.6c-.1.2-.3.4-.1.7.1.3.7 1.1 1.4 1.8 1 .9 1.8 1.2 2.1 1.3.3.1.4.1.6-.1.2-.2.8-.9 1-1.2.2-.3.4-.2.6-.1l1.7.8c.3.1.4.2.5.3.1.1.1.7-.1 1.4z"/></svg>
+            WhatsApp
+        </button>
+        <button onclick="compartirTelegram()" class="flex items-center justify-center gap-2 bg-white/5 border border-white/10 hover:bg-emerald-500/10 hover:border-emerald-400/40 p-3.5 rounded-xl text-sm font-semibold transition">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M21.9 4.6c.3-1.2-.4-1.8-1.5-1.5L2.7 9.6c-1.2.4-1.2 1.2-.2 1.5l4.6 1.4 1.8 5.5c.3.7.3 1 .8 1 .4 0 .6-.2.9-.5l2.2-2.1 4.5 3.3c.8.5 1.4.2 1.6-.7l2.8-13.4zM8 12.6l9.3-5.7c.4-.2.7-.1.4.2l-7.5 6.8-.3 3-1.9-4.3z"/></svg>
+            Telegram
         </button>
     </div>
 
-    <!-- SECCIÓN INDESTRUCTIBLE DE LA IA -->
-    <div class="px-6 max-w-lg mx-auto mt-4">
-        <div class="bg-[#1c1c1e] border border-[#ffcc00] rounded-2xl p-5 shadow-xl shadow-yellow-500/5">
-            <h3 class="text-[#ffcc00] font-bold text-lg border-b border-zinc-800 pb-3 mb-3 flex items-center gap-2">
-                🤖 Análisis Multi-Captura Realizado con Éxito
-            </h3>
-            <div class="text-sm text-zinc-300解决方案 leading-relaxed">
-                **Análisis de Capturas de Betmines**<br><br>Basándome en los datos consolidados de capturas de Betmines del día, puedo proporcionar las siguientes observaciones y predicciones:<br><br>* **Tendencia diaria**: La cantidad de capturas de Betmines ha aumentado un 15% en comparación con el día anterior.<br>* **Horarios de captura**: Los horarios de mayor actividad de captura son entre las 12:00 y las 15:00, lo que sugiere que los jugadores son más activos durante el almuerzo.<br>* **Modalidades de juego**: La modalidad de juego más popular es la \"Caza de Betmines\" (60%), seguida de la \"Carrera de Betmines\" (30%) y la \"Liga de Betmines\" (10%).<br>* **Jugadores más activos**: Los 5 jugadores más activos del día han capturado un total de 20 Betmines, lo que representa el 40% del total de capturas.<br><br>**Predicciones**<br><br>* **Incremento de capturas**: Se espera que la cantidad de capturas de Betmines aumente un 10% en el día de mañana, debido a la tendencia diaria y la actividad de los jugadores.<br>* **Jugadores más activos**: Los jugadores \"Player1\" y \"Player2\" tienen probabilidades de seguir siendo los más activos del día, ya que han demostrado una gran habilidad y dedicación en la caza de Betmines.<br>* **Modalidad de juego más popular**: La \"Caza de Betmines\" seguirá siendo la modalidad de juego más popular, ya que es la más accesible y divertida para la mayoría de los jugadores.<br><br>**Conclusión**<br><br>En resumen, los datos consolidados de capturas de Betmines del día muestran una tendencia diaria positiva, con un aumento en la cantidad de capturas y una mayor actividad de los jugadores durante el día. Las predicciones sugieren que la cantidad de capturas aumentará en el día de mañana, y que los jugadores más activos seguirán siendo los más prominentes en la caza de Betmines.
+    <div class="px-6 max-w-3xl mx-auto mt-6">
+        <div id="countdown" class="hidden mb-4 items-center justify-between gap-4 bg-gradient-to-r from-emerald-500/15 to-teal-500/10 border border-emerald-400/30 rounded-2xl p-4">
+            <div class="flex items-center gap-3 min-w-0">
+                <div class="shrink-0 w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center"><i class="ti ti-clock-2 text-emerald-300 text-xl"></i></div>
+                <div class="min-w-0">
+                    <div class="text-[10px] font-bold tracking-widest text-emerald-300/80 uppercase">Próximo partido</div>
+                    <div class="font-bold text-white truncate" id="cdPartido">--</div>
+                    <div class="text-xs text-gray-400" id="cdHora"></div>
+                </div>
+            </div>
+            <div class="shrink-0 text-right">
+                <div class="text-[10px] font-bold tracking-widest text-emerald-300/80 uppercase">Empieza en</div>
+                <div class="font-black text-2xl text-emerald-300 tabular-nums" id="cdTiempo">--:--:--</div>
             </div>
         </div>
     </div>
+
+    <div class="px-6 max-w-3xl mx-auto mb-4">
+        <input id="busqueda" type="text" placeholder="Buscar equipo o liga..." class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-400/50 transition">
+    </div>
+
+    <div class="px-6 max-w-3xl mx-auto flex flex-wrap items-center gap-3 mb-4">
+        <div class="flex items-center gap-2 text-sm">
+            <span class="text-gray-500 font-medium">Ver:</span>
+            <button id="filtroTodos" class="tab bg-emerald-500 text-black">Todos</button>
+            <button id="filtroHoy" class="tab bg-white/10 text-white">Hoy</button>
+            <button id="filtroManana" class="tab bg-white/10 text-white">Mañana</button>
+        </div>
+        <div class="flex items-center gap-2 text-sm ml-auto">
+            <span class="text-gray-500 font-medium">Hora:</span>
+            <button id="zonaAuto" class="tab bg-emerald-500 text-black">Mi celular</button>
+            <button id="zonaChile" class="tab bg-white/10 text-white">Chile</button>
+        </div>
+    </div>
+    <div class="px-6 max-w-3xl mx-auto flex flex-wrap items-center gap-2 mb-4">
+        <span class="text-gray-500 font-medium text-sm">Ordenar:</span>
+        <button id="ordenHora" class="tab bg-emerald-500 text-black">Hora</button>
+        <button id="ordenLiga" class="tab bg-emerald-500 text-black">Liga</button>
+    </div>
+
+    <div id="sportTabs" class="flex flex-wrap justify-center gap-2 px-6 py-2"></div>
+    <div id="content" class="px-6 max-w-3xl mx-auto"></div>
+
+<script>
+let allData = {};
+let zona = 'auto'; // 'auto' = hora del celular, 'chile' = America/Santiago
+let tabActivo = 'todos';
+let filtro = 'todos'; // 'todos' | 'hoy' | 'manana'
+let ordenHora = true;
+let ordenLiga = true;
+let busqueda = '';
+let intervaloContador = null;
+
+// Zona horaria actual del dispositivo
+function obtenerTZ() {
+    if (zona === 'chile') return 'America/Santiago';
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'America/Santiago';
+}
+
+// ---------- Fechas y horas ----------
+
+// Número de fecha de Excel (serial) -> componentes
+function serialAComps(n) {
+    const dt = new Date((n - 25569) * 86400 * 1000);
+    return { y: dt.getUTCFullYear(), m: dt.getUTCMonth() + 1, d: dt.getUTCDate(), hh: dt.getUTCHours(), mm: dt.getUTCMinutes() };
+}
+
+// Extrae año/mes/día/hora/min de una cadena flexible
+function extraerComponentes(s) {
+    let y = null, m = null, d = null, hh = 0, mm = 0;
+    let mF = s.match(/(\d{4})[-/.](\d{1,2})[-/.](\d{1,2})/);
+    if (mF) { y = +mF[1]; m = +mF[2]; d = +mF[3]; }
+    else {
+        mF = s.match(/(\d{1,2})[-/.](\d{1,2})[-/.](\d{4})/);
+        if (mF) { d = +mF[1]; m = +mF[2]; y = +mF[3]; }
+    }
+    const tF = s.match(/(\d{1,2})[:h](\d{2})/);
+    if (tF) { hh = +tF[1]; mm = +tF[2]; }
+    if (y === null) return null;
+    return { y, m, d, hh, mm };
+}
+
+// Parsea un valor de fecha del Excel a instante absoluto (ms).
+// Las horas del Excel se interpretan como UTC y luego se convierten
+// a la zona elegida (celular o Chile).
+function parseFecha(valor) {
+    const n = limpiarNumero(valor);
+    let comps = null;
+    if (n !== null && n > 20000 && n < 60000) {
+        comps = serialAComps(n);
+    } else {
+        const s = String(valor).trim();
+        if (!s) return null;
+        comps = extraerComponentes(s);
+        if (!comps) {
+            const t = Date.parse(s);
+            return isNaN(t) ? null : t;
+        }
+    }
+    // Si falta la fecha, usar el día de hoy
+    if (comps.y === null) {
+        const now = new Date();
+        comps.y = now.getFullYear(); comps.m = now.getMonth() + 1; comps.d = now.getDate();
+    }
+    return Date.UTC(comps.y, comps.m - 1, comps.d, comps.hh, comps.mm);
+}
+
+function diaEnTz(ts, tz) {
+    const dtf = new Intl.DateTimeFormat('en-US', { timeZone: tz, year: 'numeric', month: 'numeric', day: 'numeric' });
+    const p = dtf.formatToParts(ts ? new Date(ts) : new Date());
+    const get = (t) => parseInt(p.find(x => x.type === t)?.value || '0', 10);
+    return Date.UTC(get('year'), get('month') - 1, get('day'));
+}
+
+function formatearHora(ts) {
+    if (ts === undefined || ts === null) return '';
+    const tz = obtenerTZ();
+    const d = new Date(ts);
+    const hoy = diaEnTz(null, tz);
+    const dia = diaEnTz(ts, tz);
+    const diff = Math.round((dia - hoy) / 86400000);
+    let label;
+    if (diff === 0) label = 'Hoy';
+    else if (diff === 1) label = 'Mañana';
+    else if (diff === -1) label = 'Ayer';
+    else {
+        label = new Intl.DateTimeFormat('es-CL', { timeZone: tz, day: 'numeric', month: 'short' }).format(d);
+    }
+    const hora = new Intl.DateTimeFormat('es-CL', { timeZone: tz, hour: '2-digit', minute: '2-digit' }).format(d);
+    return `${label} · ${hora}`;
+}
+
+// Ordena una lista por hora de inicio (los sin hora quedan al final)
+function ordenarPorHora(lista) {
+    lista.forEach(p => {
+        if (p._ts === undefined) p._ts = p.date ? parseFecha(p.date) : null;
+        if (p._ts === undefined) p._ts = null;
+    });
+    lista.sort((x, y) => {
+        const a = x._ts === null ? Infinity : x._ts;
+        const b = y._ts === null ? Infinity : y._ts;
+        return a - b;
+    });
+    return lista;
+}
+
+function nombreLiga(p) {
+    const liga = String(p.liga || p._deporte || tabActivo || 'Sin liga').trim();
+    return liga && liga !== 'todos' ? liga : 'Sin liga';
+}
+
+const PALETA_LIGAS = [
+    '#34d399', '#38bdf8', '#fbbf24', '#f472b6', '#a78bfa',
+    '#fb7185', '#2dd4bf', '#60a5fa', '#f59e0b', '#c084fc',
+    '#4ade80', '#22d3ee', '#f97316', '#e879f9', '#818cf8'
+];
+
+function hashLiga(nombre) {
+    let h = 0;
+    const s = String(nombre || '');
+    for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+    return h;
+}
+
+function colorLiga(nombre) {
+    return PALETA_LIGAS[hashLiga(nombre) % PALETA_LIGAS.length];
+}
+
+function estiloLiga(nombre) {
+    const c = colorLiga(nombre);
+    return `--liga:${c};--liga-glow:${c}40`;
+}
+
+function agruparPorLiga(lista, porHora) {
+    const grupos = [];
+    const mapa = new Map();
+    lista.forEach(p => {
+        const clave = nombreLiga(p);
+        if (!mapa.has(clave)) {
+            const g = { liga: clave, partidos: [] };
+            mapa.set(clave, g);
+            grupos.push(g);
+        }
+        mapa.get(clave).partidos.push(p);
+    });
+    grupos.forEach(g => {
+        if (porHora) ordenarPorHora(g.partidos);
+    });
+    grupos.sort((a, b) => {
+        if (porHora) {
+            const ta = a.partidos[0]?._ts;
+            const tb = b.partidos[0]?._ts;
+            const na = ta == null ? Infinity : ta;
+            const nb = tb == null ? Infinity : tb;
+            if (na !== nb) return na - nb;
+        }
+        return a.liga.localeCompare(b.liga, 'es', { sensitivity: 'base' });
+    });
+    return grupos;
+}
+
+// Icono según el deporte (Tabler Icons)
+function iconoDeporte(nombre) {
+    const n = String(nombre).toLowerCase();
+    const mapa = [
+        [/f[úu]tbol americano|nfl|americano/, 'ti-ball-american-football'],
+        [/f[úu]tbol|soccer|liga/, 'ti-ball-football'],
+        [/tenis/, 'ti-ball-tennis'],
+        [/b[aá]squet|basket|nba/, 'ti-ball-basketball'],
+        [/b[ée]isbol|baseball|mlb/, 'ti-ball-baseball'],
+        [/v[oó]lei|voley|volleyball/, 'ti-ball-volleyball'],
+        [/h[oó]ckey|nhl/, 'ti-ball-ice'],
+        [/rugby/, 'ti-ball-rugby'],
+        [/boxeo|boxing/, 'ti-boxing'],
+        [/golf/, 'ti-golf'],
+        [/ciclismo|cycling/, 'ti-bike'],
+        [/h[ií]pica|carreras|caballos|racing/, 'ti-horse'],
+        [/nataci[oó]n|swimming/, 'ti-swimming'],
+        [/f[oó]rmula|f1|autos|motor/, 'ti-flag-racing'],
+        [/balonmano|handball/, 'ti-ball-handball'],
+        [/b[oó]ling|bowling/, 'ti-ball-bowling'],
+        [/d[oó]lar|dart/, 'ti-target'],
+        [/ajedrez|chess/, 'ti-chess']
+    ];
+    for (const [re, icono] of mapa) if (re.test(n)) return icono;
+    return 'ti-trophy';
+}
+
+const KEY_DATOS = 'pronosticosDataV2';
+localStorage.removeItem('pronosticosData');
+
+if (localStorage.getItem(KEY_DATOS)) {
+    try {
+        allData = JSON.parse(localStorage.getItem(KEY_DATOS));
+        Object.values(allData).forEach(ordenarPorHora);
+    } catch (e) {
+        allData = {};
+    }
+}
+
+// ---------- Parseo flexible del Excel ----------
+
+function limpiarNumero(v) {
+    if (v === null || v === undefined || v === '') return null;
+    if (typeof v === 'number') return v;
+    const s = String(v).trim().replace(/%$/, '').replace(',', '.');
+    const n = parseFloat(s);
+    return isNaN(n) ? null : n;
+}
+
+function normalizarClaves(fila) {
+    const norm = {};
+    Object.keys(fila).forEach(k => {
+        norm[String(k).replace(/^\uFEFF/, '').replace(/\u200B/g, '').toLowerCase().trim().replace(/\s+/g, ' ')] = fila[k];
+    });
+    return norm;
+}
+
+// Busca la primera columna cuya clave contenga alguna de las palabras
+function buscarConteniendo(fila, palabras) {
+    for (const k in fila) {
+        const v = fila[k];
+        if (v === undefined || v === null || v === '') continue;
+        for (const p of palabras) {
+            if (k.includes(p)) return v;
+        }
+    }
+    return undefined;
+}
+
+// Busca la primera columna (de las candidatas) que exista y no esté vacía
+function buscar(fila, candidatas) {
+    for (const c of candidatas) {
+        const v = fila[c];
+        if (v !== undefined && v !== null && v !== '') return v;
+    }
+    return undefined;
+}
+
+// Busca candidata cuyo valor sea texto (para nombres de equipos)
+function buscarTexto(fila, candidatas) {
+    for (const c of candidatas) {
+        const v = fila[c];
+        if (v !== undefined && v !== null && v !== '' && limpiarNumero(v) === null) return v;
+    }
+    return undefined;
+}
+
+// Busca candidata cuyo valor sea numérico (para probabilidades)
+function buscarNum(fila, candidatas) {
+    for (const c of candidatas) {
+        const v = fila[c];
+        if (limpiarNumero(v) !== null) return v;
+    }
+    return undefined;
+}
+
+// Convierte a probabilidad 0-1 (acepta 0.75 o 75)
+function aProb(v) {
+    const n = limpiarNumero(v);
+    if (n === null) return 0;
+    return n > 1 ? n / 100 : n;
+}
+
+function parsearFila(raw) {
+    const f = normalizarClaves(raw);
+    const p = {};
+
+    const fecha = buscar(f, ['date', 'fecha', 'dia', 'horario', 'fecha/hora', 'fecha hora', 'datetime', 'fecha y hora']);
+    const liga = buscarConteniendo(f, ['liga', 'torneo', 'competicion', 'competencia', 'competition', 'league', 'campeonato', 'championship', 'division', 'división', 'copa', 'categoria', 'categoría', 'serie', 'conferencia', 'grupo']);
+    const local = buscarTexto(f, ['home', 'equipo local', 'equipo_local', 'local team', 'home team', 'casa', 'local', 'equipo']);
+    const visita = buscarTexto(f, ['away', 'equipo visitante', 'equipo_visitante', 'away team', 'visitante', 'visita', 'equipo b']);
+    const h = buscarNum(f, ['1x2_h', '1x2 h', '1x2 home', '1x2_home', 'prob local', 'local win', 'local_win', 'gana local', 'ganalocal', 'h1x2', 'h1', 'local']);
+    const d = buscarNum(f, ['1x2_d', '1x2 d', '1x2 draw', '1x2_draw', 'prob empate', 'draw prob', 'empate', 'prob x', 'x']);
+    const a = buscarNum(f, ['1x2_a', '1x2 a', '1x2 away', '1x2_away', 'prob visitante', 'away win', 'away_win', 'gana visitante', 'ganavisitante', 'a2', 'visita', 'visitante']);
+
+    p.date = fecha !== undefined ? String(fecha) : '';
+    p._ts = fecha !== undefined ? parseFecha(fecha) : null;
+    p.liga = liga !== undefined ? String(liga).trim() : '';
+    p.home = local !== undefined ? String(local).trim() : '';
+    p.away = visita !== undefined ? String(visita).trim() : '';
+    p['1x2_h'] = aProb(h);
+    p['1x2_d'] = aProb(d);
+    p['1x2_a'] = aProb(a);
+
+    // Over/Under: reconoce columnas como "Over 2.5", "Under 1.5", "o_2.5", "u_3.5", "O2.5", "U2.5"
+    Object.keys(f).forEach(k => {
+        const m = k.match(/^(?:over|mas|más|o)[\s_]*(?:goles\s*)?(\d+(?:[.,]\d+)?)$/i);
+        if (m) p['o_' + m[1].replace(',', '.')] = aProb(f[k]);
+        const m2 = k.match(/^(?:under|menos|u)[\s_]*(?:goles\s*)?(\d+(?:[.,]\d+)?)$/i);
+        if (m2) p['u_' + m2[1].replace(',', '.')] = aProb(f[k]);
+    });
+
+    return p;
+}
+
+function parsearLibro(wb) {
+    const data = {};
+    wb.SheetNames.forEach(nombre => {
+        const filas = XLSX.utils.sheet_to_json(wb.Sheets[nombre], { defval: '' });
+        const limpias = filas.map(parsearFila).filter(r => r.home || r.away);
+        if (limpias.length > 0) data[nombre] = limpias;
+    });
+    return data;
+}
+
+// ---------- Datos filtrados ----------
+
+function obtenerDatosFiltrados() {
+    let lista;
+    if (tabActivo === 'todos') {
+        lista = [];
+        Object.keys(allData).forEach(nombre => {
+            allData[nombre].forEach(p => lista.push(Object.assign({}, p, { _deporte: nombre })));
+        });
+    } else {
+        lista = (allData[tabActivo] || []).map(p => Object.assign({}, p, { _deporte: null }));
+    }
+    lista = ordenarPorHora(lista);
+
+    if (filtro === 'hoy' || filtro === 'manana') {
+        const tz = obtenerTZ();
+        const hoy = diaEnTz(null, tz);
+        lista = lista.filter(p => {
+            if (p._ts === null) return false;
+            const diff = Math.round((diaEnTz(p._ts, tz) - hoy) / 86400000);
+            return filtro === 'hoy' ? diff === 0 : diff === 1;
+        });
+    }
+
+    if (busqueda) {
+        const q = busqueda.toLowerCase();
+        lista = lista.filter(p =>
+            String(p.home || '').toLowerCase().includes(q) ||
+            String(p.away || '').toLowerCase().includes(q) ||
+            String(p.liga || '').toLowerCase().includes(q));
+    }
+    return lista;
+}
+
+// ---------- Render ----------
+
+function renderTabs() {
+    const container = document.getElementById('sportTabs');
+    container.innerHTML = '';
+
+    const btnTodos = document.createElement('button');
+    btnTodos.textContent = 'TODOS';
+    btnTodos.className = `tab ${tabActivo === 'todos' ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'}`;
+    btnTodos.onclick = () => { tabActivo = 'todos'; renderTabs(); mostrarDeporte(); };
+    container.appendChild(btnTodos);
+
+    Object.keys(allData).forEach(sport => {
+        const btn = document.createElement('button');
+        btn.innerHTML = `<i class="ti ${iconoDeporte(sport)} mr-1.5"></i>${sport.toUpperCase()}`;
+        btn.className = `tab ${tabActivo === sport ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'}`;
+        btn.onclick = () => { tabActivo = sport; renderTabs(); mostrarDeporte(); };
+        container.appendChild(btn);
+    });
+}
+
+function barra(valor, color) {
+    return `<div class="w-full h-1.5 bg-white/10 rounded-full overflow-hidden mt-2"><div class="h-full rounded-full ${color}" style="width:${Math.max(valor, 2)}%"></div></div>`;
+}
+
+function renderCard(p, ocultarLiga) {
+    const h = Math.round((p['1x2_h'] || 0) * 100);
+    const d = Math.round((p['1x2_d'] || 0) * 100);
+    const a = Math.round((p['1x2_a'] || 0) * 100);
+
+    const picks = [
+        { k: '1x2_h', v: h, l: 'LOCAL' },
+        { k: '1x2_d', v: d, l: 'EMPATE' },
+        { k: '1x2_a', v: a, l: 'VISITA' }
+    ];
+    [1.5, 2.5, 3.5].forEach(th => {
+        if (p['o_' + th] !== undefined && p['o_' + th] > 0) picks.push({ k: 'o_' + th, v: Math.round(p['o_' + th] * 100), l: 'Over ' + th });
+        if (p['u_' + th] !== undefined && p['u_' + th] > 0) picks.push({ k: 'u_' + th, v: Math.round(p['u_' + th] * 100), l: 'Under ' + th });
+    });
+    const mejor = picks.reduce((mx, x) => (x.v > mx.v ? x : mx), { v: -1 });
+    const esMejor = (k) => mejor.k === k;
+
+    let ouHTML = '';
+    [1.5, 2.5, 3.5].forEach(th => {
+        const fmt = (k, barCol, txtCol, thTxt) => {
+            const val = Math.round(p[k] * 100);
+            const resaltar = esMejor(k);
+            return `<div class="flex items-center justify-between py-2 text-sm gap-3 ${resaltar ? 'text-amber-300 font-bold' : ''}">
+                <span class="text-gray-400 shrink-0">${thTxt} ${th}</span>
+                <span class="flex-1 h-1.5 bg-white/10 rounded-full overflow-hidden"><span class="block h-full rounded-full ${barCol}" style="width:${Math.max(val, 2)}%"></span></span>
+                <span class="${txtCol} font-black text-base w-12 text-right shrink-0">${val}%</span>
+            </div>`;
+        };
+        if (p['o_' + th] !== undefined && p['o_' + th] > 0) ouHTML += fmt('o_' + th, 'bg-emerald-400', 'text-emerald-400', 'Over');
+        if (p['u_' + th] !== undefined && p['u_' + th] > 0) ouHTML += fmt('u_' + th, 'bg-rose-400', 'text-rose-400', 'Under');
+    });
+
+    const ligaTxt = nombreLiga(p);
+    const estilo = estiloLiga(ligaTxt);
+    const badge = (!ocultarLiga && ligaTxt)
+        ? `<span class="liga-badge inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full" style="${estilo}"><span class="liga-dot"></span><i class="ti ${iconoDeporte(ligaTxt)}"></i>${ligaTxt}</span>`
+        : '';
+
+    const celda1x2 = (val, col, txt, k) => `
+        <div class="relative ${esMejor(k) ? 'ring-2 ring-amber-300/80 bg-white/5' : 'bg-white/[.03]'} border border-white/10 rounded-2xl py-4">
+            ${esMejor(k) ? '<div class="absolute -top-2 left-1/2 -translate-x-1/2 text-[9px] font-black tracking-widest bg-amber-400 text-black px-1.5 py-0.5 rounded-full">TOP</div>' : ''}
+            <div class="text-3xl font-black ${col}">${val}%</div>
+            ${barra(val, col === 'text-emerald-400' ? 'bg-emerald-400' : col === 'text-sky-400' ? 'bg-sky-400' : 'bg-rose-400')}
+            <div class="text-[10px] font-bold tracking-widest text-gray-500 mt-1">${txt}</div>
+        </div>`;
+
+    return `
+    <div class="card liga-card" style="${estilo}">
+        <div class="flex items-center justify-between gap-3">
+            ${badge}
+            <span class="inline-flex items-center gap-1.5 text-amber-300 font-semibold text-sm ml-auto">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" d="M12 7v5l3 2"/></svg>
+                ${formatearHora(p._ts) || (p.date || 'Sin horario')}
+            </span>
+        </div>
+        <div class="font-bold text-xl mt-3 text-white leading-snug">${p.home} <span class="text-gray-500 font-medium">vs</span> ${p.away}</div>
+        ${mejor.v > 0 ? `<div class="mt-3 inline-flex items-center gap-1.5 text-amber-300 text-xs font-bold bg-amber-400/10 border border-amber-400/30 rounded-full px-3 py-1"><i class="ti ti-flame"></i> Mejor pick: ${mejor.l} ${mejor.v}%</div>` : ''}
+        <div class="grid grid-cols-3 gap-3 mt-6 text-center">
+            ${celda1x2(h, 'text-emerald-400', 'LOCAL', '1x2_h')}
+            ${celda1x2(d, 'text-sky-400', 'EMPATE', '1x2_d')}
+            ${celda1x2(a, 'text-rose-400', 'VISITA', '1x2_a')}
+        </div>
+        ${ouHTML ? `<div class="mt-5 bg-black/30 border border-white/5 rounded-2xl p-4">${ouHTML}</div>` : ''}
+    </div>`;
+}
+
+function mostrarDeporte() {
+    const data = obtenerDatosFiltrados();
+    const deportes = Object.keys(allData).length;
+    const titulo = tabActivo === 'todos' ? 'Todos los partidos' : tabActivo;
+    const partesOrden = [];
+    if (ordenLiga) partesOrden.push('liga');
+    if (ordenHora) partesOrden.push('hora');
+    const etiquetaOrden = partesOrden.length
+        ? 'ordenados por ' + partesOrden.join(' y ')
+        : 'sin orden especial';
+
+    let html = `<h2 class="text-emerald-400 text-3xl font-black mb-2 px-2 capitalize">${titulo}</h2>
+        <p class="text-gray-500 text-sm mb-6 px-2">${data.length} de ${deportes} deporte(s) · ${etiquetaOrden}</p>`;
+
+    if (data.length === 0) {
+        document.getElementById('content').innerHTML = html + '<p class="text-center py-24 text-gray-500">No hay partidos que coincidan. Sube un Excel o cambia el filtro.</p>';
+        return;
+    }
+
+    let cards = '';
+    if (ordenLiga) {
+        agruparPorLiga(data, ordenHora).forEach(grupo => {
+            const estilo = estiloLiga(grupo.liga);
+            cards += `<section class="liga-grupo" style="${estilo}">
+                <div class="liga-header">
+                    <h3 class="text-white font-black text-lg flex items-center gap-2 min-w-0">
+                        <span class="liga-dot"></span>
+                        <i class="ti ${iconoDeporte(grupo.liga)}" style="color:var(--liga)"></i>
+                        <span class="truncate">${grupo.liga}</span>
+                    </h3>
+                    <span class="liga-count text-[11px] font-bold tracking-widest uppercase rounded-full px-2.5 py-1 shrink-0">${grupo.partidos.length}</span>
+                </div>`;
+            grupo.partidos.forEach(p => { cards += renderCard(p, true); });
+            cards += `</section>`;
+        });
+    } else {
+        const lista = ordenHora ? ordenarPorHora(data.slice()) : data;
+        lista.forEach(p => { cards += renderCard(p, false); });
+    }
+
+    document.getElementById('content').innerHTML = html + cards;
+}
+
+function cargarDatos(data) {
+    const total = Object.values(data).reduce((acc, lista) => acc + lista.length, 0);
+    if (total === 0) {
+        document.getElementById('status').textContent = 'No se encontraron partidos en el archivo.';
+        return;
+    }
+    allData = data;
+    Object.values(allData).forEach(ordenarPorHora);
+    localStorage.setItem(KEY_DATOS, JSON.stringify(allData));
+    document.getElementById('status').textContent = `${Object.keys(allData).length} deporte(s), ${total} partidos cargados`;
+    filtro = 'todos';
+    busqueda = '';
+    document.getElementById('busqueda').value = '';
+    actualizarFiltroUI();
+    tabActivo = 'todos';
+    renderTabs();
+    mostrarDeporte();
+    iniciarContador();
+}
+
+// ---------- Contador del próximo partido ----------
+
+function iniciarContador() {
+    if (intervaloContador) clearInterval(intervaloContador);
+    const el = document.getElementById('countdown');
+    const render = () => {
+        const now = Date.now();
+        let proximo = null;
+        Object.keys(allData).forEach(nombre => {
+            allData[nombre].forEach(p => {
+                if (p._ts && p._ts > now && (!proximo || p._ts < proximo._ts)) {
+                    proximo = Object.assign({}, p, { _deporte: nombre });
+                }
+            });
+        });
+        if (!proximo) { el.classList.add('hidden'); el.classList.remove('flex'); return; }
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+        document.getElementById('cdPartido').textContent = `${proximo.home} vs ${proximo.away} · ${proximo._deporte}`;
+        document.getElementById('cdHora').textContent = formatearHora(proximo._ts);
+        const diff = proximo._ts - now;
+        const dias = Math.floor(diff / 86400000);
+        const hh = Math.floor(diff % 86400000 / 3600000);
+        const mm = Math.floor(diff % 3600000 / 60000);
+        const ss = Math.floor(diff % 60000 / 1000);
+        const pad = n => String(n).padStart(2, '0');
+        document.getElementById('cdTiempo').textContent = (dias > 0 ? dias + 'd ' : '') + pad(hh) + ':' + pad(mm) + ':' + pad(ss);
+    };
+    render();
+    intervaloContador = setInterval(render, 1000);
+}
+
+// ---------- Filtros, búsqueda y zona horaria ----------
+
+function actualizarFiltroUI() {
+    const set = (id, activo) => {
+        document.getElementById(id).className = `tab ${activo ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'}`;
+    };
+    set('filtroTodos', filtro === 'todos');
+    set('filtroHoy', filtro === 'hoy');
+    set('filtroManana', filtro === 'manana');
+}
+
+function actualizarZonaUI() {
+    const set = (id, activo) => {
+        document.getElementById(id).className = `tab ${activo ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'}`;
+    };
+    set('zonaAuto', zona === 'auto');
+    set('zonaChile', zona === 'chile');
+}
+
+function actualizarOrdenUI() {
+    const set = (id, activo) => {
+        document.getElementById(id).className = `tab ${activo ? 'bg-emerald-500 text-black' : 'bg-white/10 text-white'}`;
+    };
+    set('ordenHora', ordenHora);
+    set('ordenLiga', ordenLiga);
+}
+
+function rerenderActual() {
+    mostrarDeporte();
+}
+
+document.getElementById('filtroTodos').onclick = () => { filtro = 'todos'; actualizarFiltroUI(); rerenderActual(); };
+document.getElementById('filtroHoy').onclick = () => { filtro = 'hoy'; actualizarFiltroUI(); rerenderActual(); };
+document.getElementById('filtroManana').onclick = () => { filtro = 'manana'; actualizarFiltroUI(); rerenderActual(); };
+document.getElementById('zonaAuto').onclick = () => { zona = 'auto'; actualizarZonaUI(); rerenderActual(); };
+document.getElementById('zonaChile').onclick = () => { zona = 'chile'; actualizarZonaUI(); rerenderActual(); };
+document.getElementById('ordenHora').onclick = () => { ordenHora = !ordenHora; actualizarOrdenUI(); rerenderActual(); };
+document.getElementById('ordenLiga').onclick = () => { ordenLiga = !ordenLiga; actualizarOrdenUI(); rerenderActual(); };
+document.getElementById('busqueda').oninput = e => { busqueda = e.target.value.trim(); rerenderActual(); };
+
+// ---------- Compartir / copiar pronósticos ----------
+
+function generarTexto() {
+    const lineas = [];
+    lineas.push('PRONOS CAMILOVEN - HIGH PROBABILITY PICKS');
+    lineas.push('');
+    Object.keys(allData).forEach(nombre => {
+        const lista = ordenarPorHora(allData[nombre].slice());
+        if (lista.length === 0) return;
+        lineas.push('• ' + nombre.toUpperCase() + ' (' + lista.length + ')');
+        lineas.push('');
+        agruparPorLiga(lista, true).forEach(grupo => {
+            lineas.push('  ' + grupo.liga + ' (' + grupo.partidos.length + ')');
+            grupo.partidos.forEach((p, i) => {
+                const h = Math.round((p['1x2_h'] || 0) * 100);
+                const d = Math.round((p['1x2_d'] || 0) * 100);
+                const a = Math.round((p['1x2_a'] || 0) * 100);
+                lineas.push('  ' + (i + 1) + '. ' + (formatearHora(p._ts) || (p.date || 'Sin horario')));
+                lineas.push('     ' + p.home + ' vs ' + p.away);
+                if (h || d || a) lineas.push('     1X2: ' + h + '% - ' + d + '% - ' + a + '%');
+                const ou = [];
+                [1.5, 2.5, 3.5].forEach(th => {
+                    if (p['o_' + th] !== undefined && p['o_' + th] > 0) ou.push('Over ' + th + ' ' + Math.round(p['o_' + th] * 100) + '%');
+                    if (p['u_' + th] !== undefined && p['u_' + th] > 0) ou.push('Under ' + th + ' ' + Math.round(p['u_' + th] * 100) + '%');
+                });
+                if (ou.length) lineas.push('     ' + ou.join(' | '));
+                lineas.push('');
+            });
+        });
+    });
+    return lineas.join('\n');
+}
+
+function hayPartidos() {
+    return Object.values(allData).some(lista => lista.length > 0);
+}
+
+async function copiarAlPortapapeles(texto) {
+    try {
+        await navigator.clipboard.writeText(texto);
+        return true;
+    } catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = texto;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        const ok = document.execCommand('copy');
+        document.body.removeChild(ta);
+        return ok;
+    }
+}
+
+async function compartirCopiar() {
+    if (!hayPartidos()) { mostrarToast('Primero carga un Excel'); return; }
+    const ok = await copiarAlPortapapeles(generarTexto());
+    mostrarToast(ok ? 'Pronósticos copiados al portapapeles' : 'No se pudo copiar');
+}
+
+function compartirWhatsApp() {
+    if (!hayPartidos()) { mostrarToast('Primero carga un Excel'); return; }
+    window.open('https://wa.me/?text=' + encodeURIComponent(generarTexto()), '_blank');
+}
+
+function compartirTelegram() {
+    if (!hayPartidos()) { mostrarToast('Primero carga un Excel'); return; }
+    window.open('https://t.me/share/url?url=' + encodeURIComponent('https://github.com/camiloven/pronos-camiloven') + '&text=' + encodeURIComponent(generarTexto()), '_blank');
+}
+
+function mostrarToast(msg) {
+    let t = document.getElementById('toast');
+    if (!t) {
+        t = document.createElement('div');
+        t.id = 'toast';
+        t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#10b981;color:#000;font-weight:700;padding:12px 24px;border-radius:9999px;box-shadow:0 10px 30px rgba(0,0,0,.4);z-index:50;transition:opacity .3s;';
+        document.body.appendChild(t);
+    }
+    t.textContent = msg;
+    t.style.opacity = '1';
+    clearTimeout(t._to);
+    t._to = setTimeout(() => { t.style.opacity = '0'; }, 2200);
+}
+
+// ---------- Upload ----------
+
+document.getElementById('fileInput').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    leerArchivo(file);
+};
+
+const dropzone = document.getElementById('dropzone');
+dropzone.addEventListener('click', () => document.getElementById('fileInput').click());
+dropzone.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+dropzone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    const file = e.dataTransfer.files[0];
+    if (file) leerArchivo(file);
+});
+
+function leerArchivo(file) {
+    const esCSV = /\.csv$/i.test(file.name);
+    const reader = new FileReader();
+    reader.onload = ev => {
+        try {
+            const wb = XLSX.read(ev.target.result, { type: esCSV ? 'string' : 'binary' });
+            cargarDatos(parsearLibro(wb));
+        } catch (err) {
+            alert('Error al leer el archivo. Asegúrate de que sea un .xlsx o .csv válido.');
+        }
+    };
+    if (esCSV) reader.readAsText(file);
+    else reader.readAsBinaryString(file);
+}
+
+// ---------- Inicialización ----------
+
+actualizarZonaUI();
+actualizarFiltroUI();
+actualizarOrdenUI();
+if (Object.keys(allData).length > 0) {
+    renderTabs();
+    mostrarDeporte();
+    iniciarContador();
+}
+</script>
 </body>
 </html>
